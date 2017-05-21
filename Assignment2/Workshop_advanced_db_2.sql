@@ -1,102 +1,122 @@
---Creating the tables 
+/*Instructions for executing successfully the script, please keep in mind the order, everything is carefully placed in the order it should be executed. Example, first execute types_of_vechicles 
+and then vehicles. This is due to the foreign keys and avoid updating the tables so it all is rather smooth.*/
 
-select * from vehicles;
 
-CREATE TABLE vehicles(
-id_vehicle integer NOT NULL,
-registration_number integer NOT NULL,
-plate varchar(10) NOT NULL,
-status varchar(15)NOT NULL,
-mileage integer NOT NULL,
-model_Ve varchar(5) NOT NULL,
-id_type INTEGER NOT NULL,
-value_Ve integer NOT NULL, 
-replacement_val integer NOT NULL,
-bought_date date NOT NULL,
-tax_date date NOT NULL,
-requires_qualification varchar(5) NOT NULL,
-CONSTRAINT PK_vehicles_id_vehicle PRIMARY KEY(id_vehicle),
-CONSTRAINT FK_type_of_vehicles1 FOREIGN KEY (id_type) REFERENCES type_of_vehicles(id_type)
-)
-
+--Creating table type_of_vehicles.
 CREATE TABLE type_of_vehicles(
-id_type integer NOT NULL,
-description varchar(50) NOT NULL,
+id_type INTEGER NOT NULL,
+description VARCHAR(50) NOT NULL, --COLOCAR TAMAÑO EN GRAFICA
 CONSTRAINT PK_type_of_vehicles_id_type PRIMARY KEY(id_type)
 )
 
 
-CREATE TABLE qualification_per_driver(
-id_driver integer NOT NULL,
-id_qualification integer NOT NULL,
-status varchar(15) NOT NULL,
-assignment_date date NOT NULL,
-CONSTRAINT PK_qualification_per_driver PRIMARY KEY(id_driver)
+--Creating table vehicles.
+CREATE TABLE vehicles(
+id_vehicle INTEGER NOT NULL,
+registration_number INTEGER NOT NULL,
+plate VARCHAR(10) NOT NULL,
+status VARCHAR(15)NOT NULL,
+mileage INTEGER NOT NULL,
+model_Ve VARCHAR(5) NOT NULL,
+id_type INTEGER NOT NULL,
+value_Ve INTEGER NOT NULL, 
+replacement_val INTEGER NOT NULL,
+bought_date DATE NOT NULL,
+tax_date DATE NOT NULL,
+requires_qualification VARCHAR(5) NOT NULL,
+CONSTRAINT PK_vehicles_id_vehicle PRIMARY KEY(id_vehicle),
+CONSTRAINT FK_type_of_vehicles1 FOREIGN KEY (id_type) REFERENCES type_of_vehicles(id_type)
 )
 
+
+--Creating table qualification_per_driver.
+CREATE TABLE qualification_per_driver(
+id_driver INTEGER NOT NULL,
+id_qualification INTEGER NOT NULL,
+status VARCHAR(15) NOT NULL,
+assignment_date DATE NOT NULL,
+CONSTRAINT FK_qualifications FOREIGN KEY (id_qualification) REFERENCES driver_qualification(id_dq),
+CONSTRAINT FK_driver FOREIGN KEY (id_driver) REFERENCES drivers(id_drivers)
+)
+
+
+--Creating table driver_qualification.
 CREATE TABLE driver_qualification(
-id_DQ integer NOT NULL,
-description varchar(30) NOT NULL,
+id_dq INTEGER NOT NULL,
+description VARCHAR(30) NOT NULL,
 CONSTRAINT PK_driver_qualification PRIMARY KEY(id_DQ)
 )
 
+
+--Creating table drivers.
 CREATE TABLE drivers(
-id_drivers integer NOT NULL,
-employee_name varchar(100) NOT NULL,
+id_drivers INTEGER NOT NULL,
+employee_name VARCHAR(100) NOT NULL,
 CONSTRAINT PK_drivers_id_drivers PRIMARY KEY(id_drivers)
 )
 
+
+--Creating table drivers_vehicles.
 CREATE TABLE drivers_vehicles(
-id_DVehicles integer NOT NULL,
-id_v integer NOT NULL,
-CONSTRAINT PK_drivers_vehicles PRIMARY KEY(id_DVehicles),
+id_DVehicles INTEGER NOT NULL,
+id_v INTEGER NOT NULL,
+CONSTRAINT FK_drivers_vehicles FOREIGN KEY (id_DVehicles) REFERENCES drivers(id_drivers),
 CONSTRAINT FK_vehicles_id_vehicle FOREIGN KEY (id_v) REFERENCES vehicles(id_vehicle)
 )
 
+
+--Creating table service_details.
 CREATE TABLE service_details(
-id_service integer NOT NULL,
-id_vehicles integer NOT NULL,
-name varchar (20) NOT NULL,
+id_service INTEGER NOT NULL,
+id_vehicles INTEGER NOT NULL,
+name_S VARCHAR(20) NOT NULL, 
 description varchar(100) NOT NULL,
-issue_date date NOT NULL,
-status varchar(15) NOT NULL,
+issue_date DATE NOT NULL,
+status VARCHAR(15) NOT NULL,
 CONSTRAINT PK_service_details PRIMARY KEY(id_service),
 CONSTRAINT FK_vehicles FOREIGN KEY (id_vehicles) REFERENCES vehicles(id_vehicle)
 )
 
+
+--Creating table type_of_service.
 CREATE TABLE type_of_service(
-id_TService integer NOT NULL,
-description varchar(100) NOT NULL,
+id_TService INTEGER NOT NULL,
+description VARCHAR(100) NOT NULL,
 CONSTRAINT PK_type_of_service PRIMARY KEY(id_TService)
 )
 
+
+--Creating table service.
 CREATE TABLE service(
-id_service integer NOT NULL,
-id_TService integer NOT NULL,
-CONSTRAINT PK_service PRIMARY KEY(id_service),
+id_service INTEGER NOT NULL,
+id_TService INTEGER NOT NULL,
+CONSTRAINT PK_service FOREIGN KEY (id_service) REFERENCES service_details(id_service),
 CONSTRAINT FK_type_of_service FOREIGN KEY (id_TService) REFERENCES type_of_service(id_TService)
 )
 
 
+--Creating table repair_costs.
 CREATE TABLE repair_costs(
-id_number integer NOT NULL,
-id_vehicles integer NOT NULL,
-repair_cost integer NOT NULL,
-date_repair date NOT NULL,
-description varchar(100) NOT NULL,
-amount integer NOT NULL,
-status varchar(10) NOT NULL,
+id_number INTEGER NOT NULL,
+id_vehicles INTEGER NOT NULL,
+repair_cost INTEGER NOT NULL,
+date_repair DATE NOT NULL,
+description VARCHAR(100) NOT NULL,
+amount INTEGER NOT NULL,
+status VARCHAR(10) NOT NULL,
 CONSTRAINT PK_repair_costs PRIMARY KEY(id_number),
 CONSTRAINT FK_vehicles_repair FOREIGN KEY (id_vehicles) REFERENCES vehicles(id_vehicle)
 )
 
+
+--Creating table insurance_claims.
 CREATE TABLE insurance_claims(
-id_numberClaims integer NOT NULL,
-id_vehiclesc integer NOT NULL,
-loss_date date NOT NULL,
-date_of_issue date NOT NULL,
-nature_of_payment varchar(100) NOT NULL,
-daamges varchar(100) NOT NULL,
+id_numberClaims INTEGER NOT NULL,
+id_vehiclesc INTEGER NOT NULL,
+loss_date DATE NOT NULL,
+date_of_issue DATE NOT NULL,
+nature_of_payment VARCHAR(100) NOT NULL,
+daamges VARCHAR(100) NOT NULL,
 CONSTRAINT PK_insurance_claims PRIMARY KEY(id_numberClaims),
 CONSTRAINT FK_vehicles_claims FOREIGN KEY (id_vehiclesc) REFERENCES vehicles(id_vehicle)
 )
@@ -105,6 +125,7 @@ CONSTRAINT FK_vehicles_claims FOREIGN KEY (id_vehiclesc) REFERENCES vehicles(id_
 ----------------------------------
 --adding data to type of vehicle--
 ----------------------------------
+
 
 CREATE SEQUENCE type_sequence 
   START WITH 1
@@ -125,6 +146,7 @@ INSERT INTO type_of_vehicles VALUES (type_sequence.nextval, 'Wheelchair vehicle'
 --------------------------
 --adding data to vehicle--
 --------------------------
+
 
 CREATE SEQUENCE vehicle_sequence 
   START WITH 1
@@ -157,6 +179,7 @@ INSERT INTO vehicles VALUES (vehicle_sequence.nextval,11120,'iao987','Active',10
 --adding data to services--
 ---------------------------
  
+ 
 CREATE SEQUENCE typesservices_sequence 
   START WITH 1
   INCREMENT BY 1;
@@ -187,6 +210,7 @@ INSERT INTO type_of_service VALUES (typesservices_sequence.nextval,'Wiper Blades
 --adding data to insurance--
 ----------------------------
  
+ 
 CREATE SEQUENCE insurance_sequence 
   START WITH 1
   INCREMENT BY 1;
@@ -204,7 +228,28 @@ INSERT INTO insurance_claims VALUES (insurance_sequence.nextval,13,'17/10/2011',
 
 --select * from insurance_claims;
 
+---------------------------------
+--adding data to service_details--
+----------------------------------
+
+
 CREATE SEQUENCE service_details_sequence
   START WITH 1
   INCREMENT BY 1;
   
+INSERT INTO service_details_sequence VALUES (service_details_sequence.nextval,1, 'first check', 'checking the overall cables', sysdate, 'pending');
+INSERT INTO service_details_sequence VALUES (service_details_sequence.nextval,3, 'routine', 'ran out of coolant', sysdate, 'pending'); 
+INSERT INTO service_details_sequence VALUES (service_details_sequence.nextval,4, 'first check', 'cannot go out at night', sysdate, 'OK');
+INSERT INTO service_details_sequence VALUES (service_details_sequence.nextval,10, 'overall check', 'broke lights', sysdate, 'needs repair');
+INSERT INTO service_details_sequence VALUES (service_details_sequence.nextval,11, 'third check', 'flat tire', sysdate, 'pending');
+
+--------------------------
+--adding data to service--
+---------------------------
+  
+  
+INSERT INTO service_sequence VALUES (1, 2);
+INSERT INTO service_sequence VALUES (2, 8);
+INSERT INTO service_sequence VALUES (3, 13);
+INSERT INTO service_sequence VALUES (4, 13);
+INSERT INTO service_sequence VALUES (5, 16);
