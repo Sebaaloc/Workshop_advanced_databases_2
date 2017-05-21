@@ -1,0 +1,109 @@
+-------------------------------------------------
+--Here starts the solution to the points 4 to 8--
+-------------------------------------------------
+
+/*Point 4. Create a view in which can be seen Registration_number, Mileage, Model, Current_value, class, Replacement_Value, Status, Required_special_qualification, Number_of_services, 
+Total_money_spent_in_repair and should be only run by users associated to "finance_profile?"*/
+CREATE OR REPLACE VIEW seeing_details AS
+SELECT vehicles.registration_number,
+       vehicles.mileage,
+       vehicles.value_Ve,
+       vehicles.model_Ve,
+       type_of_vehicles.description, 
+       vehicles.replacement_val,
+       vehicles.status,
+       vehicles.requires_qualification,
+       COALESCE(aggregated_services.service_count, 0) as service_count,
+       COALESCE(aggregated_costs.total_paid, 0) as total_paid
+FROM vehicles JOIN type_of_vehicles on type_of_vehicles.id_type = vehicles.id_type
+
+LEFT JOIN (select service_details.id_vehicles, 
+      COUNT(service_details.id_service) AS service_count
+      
+FROM service_details GROUP BY service_details.id_vehicles) aggregated_services
+ON aggregated_services.id_vehicles = vehicles.id_vehicle
+
+LEFT JOIN (select repair_costs.id_vehicles, SUM(repair_cost) AS total_paid
+
+FROM repair_costs GROUP BY repair_costs.id_vehicles) aggregated_costs
+
+ON aggregated_costs.id_vehicles = vehicles.id_vehicle
+WHERE vehicles.id_type IN (4, 5, 6, 7, 8) AND vehicles.bought_date >= sysdate - interval '2' year
+
+ORDER BY vehicles.mileage DESC;
+
+GRANT SELECT ON seeing_details TO second_user;
+
+
+
+
+/*Point 6. Create a stored procedure which accepts the id of vehicle as argument, inside the procedure you should: Call the function to assign the name of the service, 
+if the string is not empty, create a new service for that vehicle in status "Pending", current date, the name field should contain text "Mandatory 'X000_service', description: current mileage. 
+If the string is empty do nothing.*/
+
+CREATE OR REPLACE PROCEDURE REMOVE_LOCATION (vehicle_in IN number) AS
+ name_service varchar(50);
+ mileagenew int;
+pointer_id number := service_details_sequence.nextval;
+BEGIN
+   name_service := assign_name(vehicle_in);
+   SELECT mileage INTO mileagenew FROM vehicles where id_vehicle = vehicle_in;
+     if name_service is not null then
+
+         INSERT INTO service_details VALUES (pointer_id, vehicle_in,'Mandatory '||name_service, 'current mileage: '||mileagenew,SYSDATE,'pending');
+
+INSERT INTO service VALUES (pointer_id, 1); 
+INSERT INTO service VALUES (pointer_id, 2); 
+INSERT INTO service VALUES (pointer_id, 3);
+INSERT INTO service VALUES (pointer_id, 4); 
+INSERT INTO service VALUES (pointer_id, 5); 
+INSERT INTO service VALUES (pointer_id, 6); 
+INSERT INTO service VALUES (pointer_id, 7); 
+INSERT INTO service VALUES (pointer_id, 8); 
+INSERT INTO service VALUES (pointer_id, 9); 
+INSERT INTO service VALUES (pointer_id, 10); 
+INSERT INTO service VALUES (pointer_id, 11); 
+INSERT INTO service VALUES (pointer_id, 12); 
+INSERT INTO service VALUES (pointer_id, 13); 
+INSERT INTO service VALUES (pointer_id, 14); 
+INSERT INTO service VALUES (pointer_id, 15); 
+INSERT INTO service VALUES (pointer_id, 16); 
+INSERT INTO service VALUES (pointer_id, 17);
+INSERT INTO service VALUES (pointer_id, 18); 
+INSERT INTO service VALUES (pointer_id, 19);
+
+    end if;
+END;
+
+
+
+
+/*Point 8. Create a stored procedure to decrease the current value of vehicles as follows: 
+a. If the class of vehicle is Moped, Motorcycle and Trike motorcycle 2% of the current value. 
+b. If the class of vehicle is Car, Light rigid heavy vehicle, Medium rigid heavy vehicle 3% of the current value. 
+c. Otherwise 5% of the current value. 
+d. Only "manager_profile?" is allowed to run the procedure and should print at the end "Number of vehicles updated successfully: xx*/
+
+CREATE OR REPLACE PROCEDURE decrease_mileage AS
+	counter_success number :=0;
+BEGIN
+	UPDATE vehicles SET mileage = (mileage*0.98) 
+  WHERE id_type  IN (1, 2, 3);
+	counter_success := sql%rowcount;
+
+	UPDATE vehicles SET mileage = (mileage*0.97) 
+  WHERE id_type  IN (4, 5, 6, 7);
+	counter_success := counter_success + sql%rowcount;
+
+	UPDATE vehicles SET mileage = (mileage*0.95) 
+  WHERE id_type  IN (8, 9);
+	counter_success := counter_success + sql%rowcount;
+
+dbms_output.put_line('there were updated: ' || decrease_mileage || 'registers');
+
+END;
+
+
+BEGIN decrease_mileage ; END;
+
+GRANT EXECUTE ON decrease_mileage TO first_user;
