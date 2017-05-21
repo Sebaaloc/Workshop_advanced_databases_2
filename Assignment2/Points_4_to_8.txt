@@ -34,7 +34,38 @@ ORDER BY vehicles.mileage DESC;
 
 GRANT SELECT ON seeing_details TO second_user;
 
+/*Point 5. Create a function to assign the name of a service, it should return a string.If a name already exists for the input code of vehicle on service_details then the returned string shall be null,
+otherwise the string shall return a string that says 3000_service, 6000_service and 9000_service according to the mileage*/
 
+CREATE OR REPLACE FUNCTION assign_name (vehicle_in IN integer)
+RETURN varchar2 AS
+   mileage_service VARCHAR2(20);
+   mileageda number := 0;
+   is_found number := 0;
+BEGIN
+--SELECT id_vehicles INTO is_found FROM service_details
+  -- where id_vehicles = vehicle_in;
+   
+--if sql%found then 
+	--mileage_service :='';
+--else
+		SELECT mileage INTO mileageda FROM vehicles where id_vehicle = vehicle_in;
+    
+		   if mileageda >= 0 AND mileageda <= 3000 then
+			mileage_service := '3000_service';
+		   else        
+       if mileageda >3000 AND mileageda <=6000 then
+			mileage_service := '6000_service';
+		   else
+			mileage_service := '9000_service';
+end if;
+end if; 
+--end if;
+   RETURN mileage_service;
+END;
+
+
+SELECT assign_name(2) FROM DUAL;
 
 
 /*Point 6. Create a stored procedure which accepts the id of vehicle as argument, inside the procedure you should: Call the function to assign the name of the service, 
@@ -75,7 +106,15 @@ INSERT INTO service VALUES (pointer_id, 19);
     end if;
 END;
 
+--Point 7. Create a trigger which once the mileage column is updated, calls the procedure that's just been created.
 
+CREATE OR REPLACE TRIGGER update_mileage 
+ AFTER UPDATE OF mileage ON vehicles 
+ FOR EACH ROW
+ 
+ BEGIN
+      REMOVE_LOCATION(:new.id_vehicle);
+ END;
 
 
 /*Point 8. Create a stored procedure to decrease the current value of vehicles as follows: 
